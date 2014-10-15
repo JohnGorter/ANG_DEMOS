@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.13/angular.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-sanitize.js"></script>
+   </head>
+    
+    <style>
+        .redcolor { background-color:red}
+        input.ng-dirty.ng-invalid { background-color:red}
+    </style>
+    
+    <body ng-app="JohnApp" id="body">
+        <div ng-controller="maincontroller">
+            <p ng-bind-html="tekst"></p>
+           
+           
+           <jg-zippy title="hello world">john was here</jg-zippy>
+           
+            
+        zoeken naar <input type="text" id="search"
+         ng-model="search" ng-model-options="{updateOn: 'blur'}" ng-keyup="cancel($event)" /></br>
+        <i> heeft gezocht naar: {{ search }} </i>
+        
+        <form action="#" method="post" name="studentform" novalidate ng-submit="saveStudent()">
+            <h1>enter a new student</h1>
+            name:<input name="name" type="text" ng-model="newstudent.name" required><br/>
+            lastname: <input name="lastname" type="text" ng-model="newstudent.lastname" /><br/>
+            <input type="submit">Add Student</button>
+        </form>
+        
+        
+        <h1>Students in this course....</h1>
+        <div data-ng-repeat="stu in students">
+            <div ng-class="{ redcolor : $first}">
+                <div ng-hide="selectedstudent == $index">
+             {{ $index }} {{ stu.name }} {{ stu.amount | currency}}
+                    <input type="button" value="edit" ng-click="editStudent($index);"/>
+                </div>
+                <div ng-show="selectedstudent == $index">
+                    <input type="text" ng-model="stu.name" required />
+                    <input type="submit" value="save" />
+                </div>
+            </div>
+            
+            <div ng-repeat="c in students"></div>
+            Show legal stuff <input type="checkbox" ng-model="c.showlegal"/>
+            <div ng-show="c.showlegal">
+                <h1>legal info</h1>
+                <p>lhroihweiorweirjweirjiowejr</p>
+            </div>
+    
+        
+        </div> <div ng-controller="detailcontroller"> {{ title }}</div>
+        </div>
+        
+    </body>
+    
+    <script>
+    var module = angular.module("JohnApp", ['ngSanitize']);
+    
+    module.controller("detailcontroller", function($scope){
+        $scope.$on("tock", function(){
+            console.log("tock received " + $scope.title)
+            $scope.title = "again..";
+            }); 
+        
+        });
+    
+    
+    module.controller("maincontroller", function($scope, $filter, $rootScope) {
+
+    var input;
+    
+    if ({} == false) {
+        console.log("empty object is false");
+    }
+    if (!!input == false) {
+        console.log("input == false is false");
+    }
+    if (!input) {
+        console.log("!input is false");
+    }
+    if ("" == false) {
+        console.log("empty string is false");
+    }
+    var filter = $filter("PrependJohnFilter");
+        $scope.cancel = function (e) {
+             if (e.keyCode == 27) {
+              $scope.userForm.userName.$rollbackViewValue();
+             }
+         };
+         
+         $scope.tekst = '<b>hello world</b>';
+         
+        $scope.students = [
+            {name:filter('ido'), lastname:'bosman', amount:300},
+            {name:filter('piet'), lastname:'jansen', amount:200},
+            {name:filter('alex'), lastname:'whatever', amount:250},
+            ];
+        $scope.title = "testing";
+        $scope.saveStudent = function(student) {
+            $scope.selectedstudent = -1;      
+        }
+        $scope.editStudent = function(index){
+            $scope.selectedstudent = index;
+            
+        }
+        
+        window.localStorage["data"] = JSON.stringify($scope.students);
+        document.getElementById("body").style.backgroundColor = window.navigator.onLine ? "green": "red";
+        
+         $scope.order = '-name';
+        $scope.newstudent = {}
+        $scope.addStudent =  function(){
+            $scope.students.push(angular.copy($scope.newstudent));
+            $scope.newstudent = {};
+        }
+        });
+    
+    
+    module.filter("PrependJohnFilter", function() {
+        return function(input, parameters){
+            console.log("johnFilter currenty executing...")
+            return "john " + input;  
+        };
+        });
+    
+    
+    module.directive("jgZippy", function(){
+        return {
+            restrict:'E',
+            template:'<b>{{ title }}</b><div ng-transclude></div>',
+            transclude:true,
+            scope: {
+                title:'@title'
+            }            
+        };
+        }); 
+
+        
+    var Person = function(n, ln) {
+        this.name = n;
+        this.lastname = ln;
+    }
+    
+    Person.prototype.sayname = function () { console.log(this.name);}
+     var john = new Person('John', 'gorter');
+     john.sayname();
+    </script>
+</html>    

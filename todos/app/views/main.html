@@ -1,0 +1,9 @@
+ <div ng-repeat="todo in todos">
+            {{ todo.title }} <a href="#/todo/{{ todo.id }}"> details</a>
+            
+            title:<input type="text" ng-model="todo.title" /><br/>
+            description: <input type="text" ng-model="todo.description" /><br/>
+            
+            <input type="button" value="save" ng-click="save(todo)"/> 
+            
+        </div>

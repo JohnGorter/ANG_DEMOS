@@ -1,0 +1,58 @@
+<!doctype html>
+    <html>
+        <head>
+                <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.13/angular.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-sanitize.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-resource.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-route.js"></script>
+ 
+        </head>
+        <body ng-app="chatApp" ng-controller="MainCtrl">
+            
+            <div ng-repeat="m in messages">
+                {{ m }}
+            </div>
+            
+            <input type="text" name="chat" ng-model="message" />
+            <input type="button" ng-click="sendMessage()" />
+            
+        </body>
+       
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+            
+            var module = angular.module("chatApp", []);
+            
+            module.service("chatService", function($rootScope) {
+                
+                this.init = function (){
+                    socket.on('message', function(msg){
+                        $rootScope.$broadcast("newm", msg); 
+                    });
+                }
+                
+                this.sendMessage = function(m) {
+                    socket.emit('message', m);
+                }
+                }); 
+            
+            module.controller("MainCtrl", function($scope, chatService){
+                $scope.$on("newm", function(sender, msg){
+                    $scope.messages.push(angular.copy(msg));
+                    $scope.$apply();
+                    });
+                
+                $scope.message = "";
+                $scope.messages = [];
+                $scope.sendMessage = function(){
+                    chatService.sendMessage($scope.message); 
+                    };
+                });
+            
+            module.run(function(chatService){
+                chatService.init();
+                });
+            
+        </script>
+    </html>
